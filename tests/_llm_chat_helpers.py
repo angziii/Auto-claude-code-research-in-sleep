@@ -18,6 +18,7 @@ BACKEND = os.environ.get("LLM_BACKEND", "api").strip().lower()
 CODEX_BIN = os.environ.get("CODEX_BIN", "codex")
 CODEX_WORKDIR = os.environ.get("CODEX_WORKDIR", os.getcwd())
 CODEX_TIMEOUT_SECS = int(os.environ.get("CODEX_TIMEOUT_SECS", "600"))
+CODEX_DISABLE_PLUGINS = os.environ.get("CODEX_DISABLE_PLUGINS", "1").strip().lower() not in ("0", "false", "no")
 
 DEBUG_LOG = os.path.join(tempfile.gettempdir(), f"{SERVER_NAME}-mcp-debug.log")
 
@@ -73,6 +74,8 @@ def call_codex_cli(messages, model=None):
     ]
     if use_model:
         cmd[2:2] = ["-m", use_model]
+    if CODEX_DISABLE_PLUGINS:
+        cmd[2:2] = ["--disable", "plugins"]
 
     try:
         completed = subprocess.run(

@@ -206,7 +206,7 @@ class TestCodexCliBackend(unittest.TestCase):
         self.assertEqual(content, "Codex reply")
 
         cmd = mock_run.call_args[0][0]
-        self.assertEqual(cmd[:4], ["codex-test", "exec", "-m", "gpt-5.5"])
+        self.assertEqual(cmd[:6], ["codex-test", "exec", "--disable", "plugins", "-m", "gpt-5.5"])
         self.assertIn("--ephemeral", cmd)
         self.assertIn("--output-last-message", cmd)
         self.assertEqual(mock_run.call_args[1]["input"], "SYSTEM:\nYou are concise\n\nUSER:\nhello")

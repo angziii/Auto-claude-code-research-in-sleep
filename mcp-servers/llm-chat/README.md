@@ -70,5 +70,6 @@ Optional settings:
 | `CODEX_WORKDIR` | server cwd | Working directory passed to `codex exec -C` |
 | `CODEX_TIMEOUT_SECS` | `600` | Per-call timeout |
 | `LLM_MODEL` | Codex config default | Optional model override passed as `codex exec -m` |
+| `CODEX_DISABLE_PLUGINS` | `1` | Adds `--disable plugins` to avoid unrelated plugin loading/sync failures |
 
-The bridge runs Codex with `codex exec --ephemeral --sandbox read-only` and reads the final answer through `--output-last-message`.
+The bridge runs Codex with `codex exec --disable plugins --ephemeral --sandbox read-only` and reads the final answer through `--output-last-message`.
