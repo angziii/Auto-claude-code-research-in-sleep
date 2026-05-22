@@ -8,6 +8,18 @@ import httpx
 import subprocess
 import tempfile
 
+
+def parse_int_env(name, default):
+    value = os.environ.get(name, "").strip()
+    if not value:
+        return default
+    try:
+        parsed = int(value)
+    except ValueError:
+        return default
+    return parsed if parsed > 0 else default
+
+
 LLM_API_KEY = os.environ.get("LLM_API_KEY", "")
 BASE_URL = os.environ.get("LLM_BASE_URL", "https://api.openai.com/v1")
 MODEL_OVERRIDE = os.environ.get("LLM_MODEL", "")
@@ -17,7 +29,7 @@ SERVER_NAME = os.environ.get("LLM_SERVER_NAME", "llm-chat")
 BACKEND = os.environ.get("LLM_BACKEND", "api").strip().lower()
 CODEX_BIN = os.environ.get("CODEX_BIN", "codex")
 CODEX_WORKDIR = os.environ.get("CODEX_WORKDIR", os.getcwd())
-CODEX_TIMEOUT_SECS = int(os.environ.get("CODEX_TIMEOUT_SECS", "600"))
+CODEX_TIMEOUT_SECS = parse_int_env("CODEX_TIMEOUT_SECS", 600)
 CODEX_DISABLE_PLUGINS = os.environ.get("CODEX_DISABLE_PLUGINS", "1").strip().lower() not in ("0", "false", "no")
 
 DEBUG_LOG = os.path.join(tempfile.gettempdir(), f"{SERVER_NAME}-mcp-debug.log")
