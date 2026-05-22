@@ -62,6 +62,14 @@ Then configure the MCP server without `LLM_API_KEY`:
 }
 ```
 
+### Security Notes
+
+`codex-cli` is an agent backend, not a pure chat API. `codex exec` loads local Codex config, rules, and `AGENTS.md` files; `--ephemeral` only prevents persisting session state. For reviewer-independence guarantees in cross-model review, point `CODEX_WORKDIR` at a narrow, dedicated directory rather than the project root, and consider absolute paths for `CODEX_BIN`.
+
+Even with `--sandbox read-only`, Codex has filesystem read access to `CODEX_WORKDIR`. Set it deliberately.
+
+The bridge converts MCP chat messages to a plain text prompt using `ROLE:\ncontent` blocks. This is intended for single-turn reviewer calls; prompts that contain literal role headers such as `SYSTEM:` can still look like role boundaries to the agent.
+
 Optional settings:
 
 | Variable | Default | Meaning |
@@ -70,5 +78,6 @@ Optional settings:
 | `CODEX_WORKDIR` | server cwd | Working directory passed to `codex exec -C` |
 | `CODEX_TIMEOUT_SECS` | `600` | Per-call timeout |
 | `LLM_MODEL` | Codex config default | Optional model override passed as `codex exec -m` |
+| `CODEX_DISABLE_PLUGINS` | `1` | Adds `--disable plugins` to avoid unrelated plugin loading/sync failures |
 
-The bridge runs Codex with `codex exec --ephemeral --sandbox read-only` and reads the final answer through `--output-last-message`.
+The bridge runs Codex with `codex exec --disable plugins --ephemeral --sandbox read-only` and reads the final answer through `--output-last-message`.

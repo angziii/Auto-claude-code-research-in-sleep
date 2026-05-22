@@ -139,7 +139,7 @@ codex login status
 }
 ```
 
-这个模式不需要 `LLM_API_KEY`。它会通过 `codex exec --ephemeral --sandbox read-only` 获取最终回答，适合把已 OAuth 登录的 Codex 当作本地 reviewer 后端使用。
+这个模式不需要 `LLM_API_KEY`。它会通过 `codex exec --disable plugins --ephemeral --sandbox read-only` 获取最终回答，适合把已 OAuth 登录的 Codex 当作本地 reviewer 后端使用；默认禁用 Codex 插件以避免无关插件加载或 marketplace 同步失败影响 reviewer 调用。
 
 ---
 

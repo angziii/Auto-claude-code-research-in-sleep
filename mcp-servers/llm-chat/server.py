@@ -11,6 +11,7 @@ Environment Variables:
     CODEX_BIN           - Codex CLI binary for codex-cli backend (default: codex)
     CODEX_WORKDIR       - Working directory for codex exec (default: current dir)
     CODEX_TIMEOUT_SECS  - Timeout for codex exec calls (default: 600)
+    CODEX_DISABLE_PLUGINS - Disable Codex plugins for exec calls (default: 1)
 
 Supported Providers (examples):
     OpenAI:      LLM_BASE_URL=https://api.openai.com/v1 LLM_MODEL=gpt-4o
@@ -31,6 +32,17 @@ import httpx
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'wb', buffering=0)
 sys.stdin = os.fdopen(sys.stdin.fileno(), 'rb', buffering=0)
 
+def parse_int_env(name, default):
+    """Parse a positive integer env var, falling back on missing or invalid values."""
+    value = os.environ.get(name, "").strip()
+    if not value:
+        return default
+    try:
+        parsed = int(value)
+    except ValueError:
+        return default
+    return parsed if parsed > 0 else default
+
 # Configuration from environment
 API_KEY = os.environ.get("LLM_API_KEY", "")
 BASE_URL = os.environ.get("LLM_BASE_URL", "https://api.openai.com/v1")
@@ -41,7 +53,8 @@ SERVER_NAME = os.environ.get("LLM_SERVER_NAME", "llm-chat")
 BACKEND = os.environ.get("LLM_BACKEND", "api").strip().lower()
 CODEX_BIN = os.environ.get("CODEX_BIN", "codex")
 CODEX_WORKDIR = os.environ.get("CODEX_WORKDIR", os.getcwd())
-CODEX_TIMEOUT_SECS = int(os.environ.get("CODEX_TIMEOUT_SECS", "600"))
+CODEX_TIMEOUT_SECS = parse_int_env("CODEX_TIMEOUT_SECS", 600)
+CODEX_DISABLE_PLUGINS = os.environ.get("CODEX_DISABLE_PLUGINS", "1").strip().lower() not in ("0", "false", "no")
 
 # Debug logging
 DEBUG_LOG = os.path.join(tempfile.gettempdir(), f"{SERVER_NAME}-mcp-debug.log")
@@ -131,6 +144,8 @@ def call_codex_cli(messages, model=None):
     ]
     if use_model:
         cmd[2:2] = ["-m", use_model]
+    if CODEX_DISABLE_PLUGINS:
+        cmd[2:2] = ["--disable", "plugins"]
 
     debug_log(f"Calling Codex CLI backend: model={use_model or '<codex-default>'}, workdir={CODEX_WORKDIR}")
 
